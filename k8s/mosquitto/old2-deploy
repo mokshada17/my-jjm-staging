@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mosquitto
+  namespace: jjm
+  labels:
+    app: mosquitto
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mosquitto
+  template:
+    metadata:
+      labels:
+        app: mosquitto
+    spec:
+      securityContext:
+        fsGroup: 1883
+      initContainers:
+        - name: init-config-perms
+          image: eclipse-mosquitto:2.0
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              cp /src-config/mosquitto.conf /mosquitto/config/mosquitto.conf
+              cp /src-config/mosquitto-acl /mosquitto/config/mosquitto-acl
+              cp /src-auth/passwd_internal /mosquitto/config/passwd_internal
+              cp /src-auth/passwd_sensors /mosquitto/config/passwd_sensors
+              cp /src-tls/ca.crt /mosquitto/certs/ca.crt
+              cp /src-tls/server.crt /mosquitto/certs/server.crt
+              cp /src-tls/server.key /mosquitto/certs/server.key
+              chown -R mosquitto:mosquitto /mosquitto/config /mosquitto/certs
+              chmod 0640 /mosquitto/config/* /mosquitto/certs/*
+          volumeMounts:
+            - name: config-src
+              mountPath: /src-config
+              readOnly: true
+            - name: auth-src
+              mountPath: /src-auth
+              readOnly: true
+            - name: tls-src
+              mountPath: /src-tls
+              readOnly: true
+            - name: runtime-config
+              mountPath: /mosquitto/config
+            - name: runtime-certs
+              mountPath: /mosquitto/certs
+      containers:
+        - name: mosquitto
+          image: eclipse-mosquitto:2.0
+          ports:
+            - name: mqtt
+              containerPort: 1883
+            - name: mqtt-tls
+              containerPort: 8883
+          volumeMounts:
+            - name: runtime-config
+              mountPath: /mosquitto/config
+            - name: runtime-certs
+              mountPath: /mosquitto/certs
+            - name: data
+              mountPath: /mosquitto/data
+      volumes:
+        - name: config-src
+          configMap:
+            name: mosquitto-config
+        - name: auth-src
+          secret:
+            secretName: mosquitto-auth
+        - name: tls-src
+          secret:
+            secretName: mosquitto-tls
+        - name: runtime-config
+          emptyDir: {}
+        - name: runtime-certs
+          emptyDir: {}
+        - name: data
+          persistentVolumeClaim:
+            claimName: mosquitto-data

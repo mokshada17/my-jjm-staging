@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jjm-frontend-svc
+  namespace: jjm
+  labels:
+    app: jjm-frontend
+    tier: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: jjm-frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

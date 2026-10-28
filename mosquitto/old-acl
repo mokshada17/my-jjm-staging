@@ -1,0 +1,7 @@
+user jjm_device
+topic deny $SYS/#
+topic write #
+
+user jjm_backend
+topic deny $SYS/#
+topic read #
