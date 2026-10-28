@@ -1,0 +1,433 @@
+Jal Jeevan Mission (JJM) Centralized IoT Platform
+
+Frontend Implementation Master Guide & Reusable Component Inventory
+
+Target Platform: Jal Jeevan Mission — Maharashtra Centralized IoT Platform (MJP / SWSM / ZP)
+
+Document Version: 2.0 (Production Architecture Standard with 12 Reusable Component Blocks)
+
+Primary Role: Definitive Team Reference for Tech Stack Selection, Reusable Components, State Separation, Dual-Theme Tokens, and GIS/MQTT Integration.
+
+1. Technology Selection Matrix: "What to Use & Why"
+
+The following matrix provides the technical justification mapping every visual and functional requirement from the training document to its corresponding production library.
+
+Domain / Requirement
+
+Screenshot Ref in Doc
+
+Selected Technology
+
+Why This Tool? (Technical Justification)
+
+Base UI Primitives
+
+Figures 13, 83, 86, 115, 128
+
+Shadcn UI + Radix UI + Tailwind CSS
+
+Zero runtime overhead. Copy-paste ownership. Accessible primitives styled with custom SCADA/Gov tokens.
+
+Global Client State
+
+Figures 4–30, 78–125
+
+Zustand
+
+Minimal boilerplate. Selective subscriptions prevent full-screen re-renders on telemetry ticks.
+
+Server State & Cache
+
+Tables 5-3, 5-7; Figures 112, 125
+
+TanStack Query v5 (React Query)
+
+Automatic background cache, query deduplication, retry logic, and pagination for 2,000+ villages.
+
+Real-Time Telemetry
+
+Section 5.2.2; Figures 74–77
+
+MQTT.js over WebSocket
+
+Direct low-latency connection to Mosquitto Broker (14.99.99.166:1889) supporting QoS 0 streaming.
+
+Telemetry Charts & Gauges
+
+Figures 10, 11, 12, 71–77
+
+Apache ECharts (echarts-for-react)
+
+Canvas renderer. 10x faster than D3/Recharts for 96 daily data packets. Dark/light theme support.
+
+Regional Drill-Down Map
+
+Figures 4, 14, 15, 48, 65, 108
+
+D3-geo + React SVG
+
+Ultra-lightweight (<20 KB GeoJSON). Instant 60 FPS polygon hover/click drill-down.
+
+Full Web GIS Application
+
+Figures 78–102 (Section 7)
+
+@arcgis/core (or MapLibre GL + Turf)
+
+Exact backend match (doc specifies ArcGIS Enterprise). Built-in Measure, LayerList, Print widgets.
+
+SCADA Hydraulic Diagram
+
+Figures 12, 34, 74, 77
+
+Handcrafted React SVG + CSS
+
+No UI library has custom water schematics. SVG handles live tank levels and animated pipe flow.
+
+9-Tier Chevron Nav
+
+Figures 4–12, 22–30
+
+Custom Component + CSS clip-path
+
+Polygon-shaped breadcrumb buttons with active node states across all 9 administrative tiers.
+
+General Action Icons
+
+All screens
+
+Lucide React (lucide-react)
+
+Clean minimalist stroke icons. 100% tree-shakeable. Automatically inherits currentColor.
+
+Water Asset Icons
+
+Figures 12, 107, 120
+
+Custom React SVG Icon Set
+
+Dedicated typed vector icons (<EsrTankIcon />, <PumpMotorIcon />, <WaterTapIcon />).
+
+High-Density Tables
+
+Figures 112, 113, 125
+
+TanStack Table v8 + @tanstack/react-virtual
+
+Smooth virtual scrolling for 1,999+ village records without DOM bloat.
+
+Report Export Engine
+
+Figures 91, 110, 114, 119, 121
+
+ExcelJS / SheetJS + jsPDF
+
+Client-side generation of styled Excel spreadsheets and print-ready PDF reports.
+
+Form Validation & Runtime Schemas
+
+All input, filter, report, and configuration forms
+
+Zod + React Hook Form Resolvers
+
+Type-safe validation schemas shared between forms, API payload parsing, filters, report parameters, and domain-level input contracts.
+
+Frontend Testing Strategy
+
+All components, workflows, API integrations, and critical user journeys
+
+Vitest + React Testing Library + MSW + Playwright
+
+Production-grade stack: Vitest for fast unit/integration tests, React Testing Library for user-behavior component tests, MSW for API mocking, and Playwright for critical browser E2E flows.
+
+2. Reusable Component Inventory (The 12 Core Building Blocks)
+
+The following 12 modular components are extracted directly from the training document screens. Once created in src/widgets/ and src/entities/, they are reused across multiple hierarchy levels (Enterprise to ESR) and across both SCADA and MIS Portal modes.
+
+#
+
+Component Name
+
+Visual Location in Doc
+
+Displayed Data / Key Metrics
+
+Reusability Scope across Hierarchy
+
+1
+
+DemographicsCoverageCard
+
+Figures 4–12, 14–21, 48–56
+
+Villages (4,120), Population (8,321,423), Households (1,878,006)
+
+Enterprise, Region, Circle, Division, Sub-Div, Block, Scheme, Village
+
+2
+
+ReservoirSummaryCard
+
+Figures 4–12, 14–21, 48–56
+
+ESR Count & Capacity (8179 / 61.73 LL), GSR (216), MBR (700)
+
+All 9 Hierarchy Levels (Enterprise to ESR)
+
+3
+
+SensorCommMatrix
+
+Figures 5–10, 15–20, 32–37, 120
+
+Flow, Chlorine, Pressure x (24h Green, 0-72h Amber, >72h Red, Total)
+
+Region, Circle, Division, Sub-Div, Block, Scheme, Village, ESR, MIS Comm
+
+4
+
+SchemePerformanceKpiCard
+
+Figures 4–10, 14–19, 48–53
+
+LPCD (>55L, <55L), Chlorine (0.2-0.5, <0.2, >0.5), Pressure (>0.7, 0.2-0.7, <0.2)
+
+Enterprise, Region, Circle, Division, Sub-Division, Block
+
+5
+
+VillagePerformanceKpiCard
+
+Figures 4–10, 14–19, 48–53, 112
+
+Aggregated Village LPCD (>55L / <55L), Chlorine bands, Pressure bands
+
+Enterprise, Region, Circle, Division, Sub-Division, Block, Scheme, MIS
+
+6
+
+TimeScrubberBar
+
+Figures 15–30, 32–77 (Bottom Bar)
+
+Start/End Timestamps, Rewind, Step arrows, 8h/1d presets, Live green pill
+
+All SCADA Dashboard Screens & Web GIS Playback Mode
+
+7
+
+FunctionalityStatsCard
+
+Figures 5–10, 15–19, 32–36
+
+Scheme Functionality (Tot/Func/Non-Func) & Village Functionality
+
+Region, Circle, Division, Sub-Division, Block
+
+8
+
+WaterSupplyDurationCard
+
+Figures 5–12, 15–21, 32–39
+
+Average Time Duration of Water Supply per day (e.g. 2.04 Hours)
+
+Region down to ESR Level
+
+9
+
+DailyWaterConsumptionCard
+
+Figures 10–12, 20, 21, 37–39
+
+Previous Day vs Current Day Water Consumption in Lakh Liters (LL)
+
+Scheme, Village, ESR Dashboards & MIS Water Consumption
+
+10
+
+LpcdMetricCard
+
+Figures 10–12, 20, 21, 37–39, 107
+
+Current LPCD (58.17 L), Previous Day LPCD, Achieving/Not Status Dot
+
+Scheme, Village, ESR Dashboards & MIS LPCD Module
+
+11
+
+WaterConsumptionChart
+
+Figures 10, 11, 12, 20, 21, 37–39
+
+7-Day Water Consumption Bar Chart (14-Dec to 20-Dec in Lakh Liters)
+
+Scheme, Village, ESR Detail Views
+
+12
+
+LpcdTrendChart
+
+Figures 10, 11, 12, 20, 21, 37–39
+
+7-Day LPCD Trend Bar/Line Chart with 55 L Benchmark Reference Line
+
+Scheme, Village, ESR Detail Views
+
+3. State Management Architecture & Data Separation
+
+A production IoT dashboard demands strict segregation between client state, server cache, real-time telemetry streams, and component-local transient state.
+
+3.1 Four-Tier State Taxonomy
+
+• Global Client State (Zustand): Active 9-tier hierarchy node, time-series scrubber window (8h, 24h, 7d), live telemetry dictionary cache, active KPI filters, alert queue, and modal overlays.
+
+• Server Cache State (TanStack Query): Asset Framework (AF) metadata hierarchy, historical 7-day LPCD rollups, GeoJSON shapefiles, and MIS report datasets.
+
+• Real-Time Event Stream (MQTT.js / WebSocket): Incoming JSON packets from Mosquitto Broker at 14.99.99.166:1889 buffered and dispatched via requestAnimationFrame.
+
+• Component Local State (useState / useReducer): Map viewport zoom/pan coordinates, active measurement drawings, form input drafts, and tooltip hover crosshairs.
+
+3.2 Zustand Global Store Code Implementation
+
+6. Enterprise Frontend Directory Structure: Feature-Sliced Domain Architecture
+
+For this frontend application, the recommended structure is an enterprise-grade Feature-Sliced Domain Architecture. This follows the same principle used in large product teams: separate code by business capability first, expose each module through a public API, keep route screens thin, and prevent deep cross-module imports. The structure below is better suited for long-term maintainability than a simple components/pages/hooks layout.
+
+[TEXT]
+
+src/
+
+├── app/                              # Application bootstrap only
+
+│   ├── providers/                    # Router, QueryClient, Theme, Auth, MQTT providers
+
+│   ├── router/                       # Route definitions, guards, lazy route loading
+
+│   ├── store/                        # App-level Zustand slices only
+
+│   ├── config/                       # Environment config, feature flags, app constants
+
+│   └── App.tsx                       # Root composition
+
+├── pages/                            # Route-level page composition; no heavy business logic
+
+│   ├── enterprise-dashboard/          # State-level dashboard route
+
+│   ├── region-dashboard/              # Region/Circle/Division route shell
+
+│   ├── scada-detail-dashboard/        # Scheme/Village/ESR SCADA screen composition
+
+│   ├── web-gis-viewer/                # GIS route shell
+
+│   └── mis-analytics/                 # MIS reporting route shell
+
+├── widgets/                          # Large reusable screen blocks composed from features/entities
+
+│   ├── dashboard-kpi-grid/            # Demographics, reservoir, performance KPI layout
+
+│   ├── telemetry-health-panel/        # Sensor communication matrix and alert summary
+
+│   ├── hierarchy-breadcrumbs/         # 9-tier chevron navigation
+
+│   ├── scada-hydraulic-schematic/     # SVG hydraulic diagram widget
+
+│   ├── telemetry-charts-panel/        # ECharts consumption/LPCD charts
+
+│   ├── gis-map-workbench/             # Map, layers, measure, buffer, query tools
+
+│   └── jalmitra-assistant-drawer/     # AI assistant drawer
+
+├── features/                         # User actions and workflows
+
+│   ├── select-hierarchy-node/         # Drill-down, breadcrumb click, active node update
+
+│   ├── change-time-window/            # 8h, 24h, 7d, custom range controls
+
+│   ├── subscribe-telemetry/           # MQTT topic subscription workflow
+
+│   ├── acknowledge-alert/             # Alert acknowledgement workflow
+
+│   ├── export-report/                 # Excel/PDF export workflow
+
+│   └── create-helpdesk-ticket/        # Support ticket workflow
+
+├── entities/                         # Business domains, data contracts, query keys, rules
+
+│   ├── hierarchy/                     # Enterprise, Region, Circle, Division, Block, Scheme, Village, ESR
+
+│   ├── sensor/                        # Sensor model, status bands, communication rules
+
+│   ├── telemetry/                     # Live reading model, MQTT payload mapping, history queries
+
+│   ├── kpi/                           # LPCD, chlorine, pressure, functionality formulas
+
+│   ├── asset/                         # ESR, GSR, MBR, pump, pipeline models
+
+│   ├── gis-layer/                     # Layer metadata, geometry adapters, spatial rules
+
+│   └── report/                        # MIS report contracts and export schemas
+
+├── shared/                           # Stable reusable foundation with no business knowledge
+
+│   ├── ui/                            # Button, Card, Modal, Table, Tooltip, Form controls
+
+│   ├── icons/                         # Lucide wrappers and custom SCADA SVG icons
+
+│   ├── api/                           # Axios/fetch client, interceptors, base response types
+
+│   ├── lib/                           # Pure utilities, date/number formatting, validators
+
+│   ├── styles/                        # Tailwind layers, theme tokens, animations
+
+│   ├── constants/                     # Generic constants only
+
+│   └── types/                         # Generic shared TypeScript helpers
+
+├── processes/                        # Optional long-running cross-page flows
+
+│   ├── auth-session/                  # Login refresh, token renewal, permission bootstrap
+
+│   └── telemetry-session/             # App-wide MQTT lifecycle and reconnect strategy
+
+└── tests/                            # Test utilities and enterprise quality gates
+
+    ├── mocks/                        # MSW handlers, MQTT mock packets, GIS fixtures
+
+    ├── e2e/                          # Playwright/Cypress end-to-end tests
+
+    └── test-utils/                   # Render helpers, provider wrappers, factories
+
+6.1 Enterprise Import Rules and Ownership Boundaries
+
+Use public APIs only: each slice exposes an index.ts file; other modules must not import from internal folders such as ui/, model/, api/, or lib/ directly.
+
+Dependencies flow downward: app can use all layers; pages can use widgets/features/entities/shared; widgets can use features/entities/shared; features can use entities/shared; entities can use shared only.
+
+Pages stay thin: route files compose widgets and pass route parameters, but they should not own API parsing, KPI formulas, or telemetry transformation logic.
+
+Entities own business contracts: API schemas, query keys, mapping functions, validation rules, and domain calculations belong inside entities, not widgets.
+
+Shared stays business-agnostic: shared utilities must not reference JJM-specific concepts such as ESR, LPCD, chlorine, village, or scheme.
+
+Tests live close to ownership: unit tests stay inside the slice they validate; only global mocks, e2e flows, and test helpers belong in tests/.
+
+7. Validation & Testing Standards
+
+Form validation standard: Use Zod as the single source of truth for runtime validation and TypeScript inference. Validation schemas should live with the owning entity or feature, then be reused by React Hook Form, API request/response guards, filter panels, report configuration forms, and MQTT payload normalization where applicable.
+
+Recommended production testing stack: Use Vitest as the primary test runner, React Testing Library for component and integration tests that assert user-visible behavior, MSW for network-level API mocks, and Playwright for the small set of critical end-to-end flows such as login, hierarchy drill-down, telemetry dashboard loading, report export, and GIS map workflows.
+
+Testing ownership rule: Unit tests validate pure utilities, schema refinements, KPI formulas, and state transitions. Component/integration tests validate screen behavior with realistic providers and MSW-backed data. E2E tests should remain focused on high-value production journeys rather than exhaustive click coverage.
+
+7. Step-by-Step Developer Implementation Roadmap
+
+1. Phase 1: Foundations & Token Setup: Install Tailwind CSS, Shadcn UI primitives, and configure theme-tokens.css for Dark/Light theme variable inversion.
+
+2. Phase 2: The 12 Reusable Widgets: Build the 12 core reusable widgets in src/widgets/ matching Section 2 specifications.
+
+3. Phase 3: State & Telemetry Wire-up: Configure the Zustand global store and wire the useMqttTelemetry hook with requestAnimationFrame throttling.
+
+4. Phase 4: Interactive Visualizations & Schematics: Build ScadaHydraulicSchematic SVG component, MaharashtraRegionMap with D3-geo, and telemetry charts with Apache ECharts.
+
+5. Phase 5: Web GIS & MIS Portal Modules: Integrate @arcgis/core (or MapLibre GL) for spatial query and buffer tools; build MIS reporting tables with virtual scrolling and Excel export.

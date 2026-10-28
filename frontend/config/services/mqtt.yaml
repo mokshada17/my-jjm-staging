@@ -1,0 +1,15 @@
+mqtt:
+  topics:
+    sensorData: "jjm/sensors/+/data"
+    deviceStatus: "jjm/devices/+/status"
+    alerts: "jjm/alerts/+"
+  qos: 1
+  reconnectInterval: 5000
+
+api:
+  endpoints:
+    devices: "/devices"
+    sensors: "/sensors"
+    analytics: "/analytics"
+  retryAttempts: 3
+  retryDelay: 1000

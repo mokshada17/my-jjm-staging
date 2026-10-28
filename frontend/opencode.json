@@ -1,0 +1,85 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "tech-lead",
+  "agent": {
+    "tech-lead": {
+      "mode": "primary",
+      "description": "Technical Lead - orchestrates all senior roles, makes binding trade-off decisions"
+    },
+    "senior-architect": {
+      "mode": "subagent",
+      "description": "Senior Software Architect - system design, technology decisions, ADRs"
+    },
+    "senior-developer": {
+      "mode": "subagent",
+      "description": "Senior Developer - implementation, clean code, TDD, code reviews"
+    },
+    "senior-tester": {
+      "mode": "subagent",
+      "description": "Senior Test Engineer - test strategy, infrastructure, quality gates"
+    },
+    "senior-devops": {
+      "mode": "subagent",
+      "description": "Senior DevOps Engineer - CI/CD, IaC, GitOps, observability, platform"
+    },
+    "senior-qa": {
+      "mode": "subagent",
+      "description": "Senior QA Engineer - acceptance criteria, release readiness, user advocacy"
+    },
+    "senior-cybersecurity": {
+      "mode": "subagent",
+      "description": "Senior Cyber Security Engineer - threat modeling, AppSec, compliance, IR"
+    },
+    "senior-product-owner": {
+      "mode": "subagent",
+      "description": "Senior Product Owner - product strategy, backlog, stakeholders, requirements"
+    },
+    "senior-ux-designer": {
+      "mode": "subagent",
+      "description": "Senior UX Designer - user research, interaction design, design systems, accessibility"
+    },
+    "senior-data-engineer": {
+      "mode": "subagent",
+      "description": "Senior Data Engineer - data architecture, pipelines, modeling, governance, analytics"
+    },
+    "senior-tech-writer": {
+      "mode": "subagent",
+      "description": "Senior Technical Writer - documentation, API docs, developer experience, content architecture"
+    },
+    "senior-performance-engineer": {
+      "mode": "subagent",
+      "description": "Senior Performance Engineer - load testing, profiling, optimization, capacity planning, SLOs"
+    },
+    "senior-mobile-engineer": {
+      "mode": "subagent",
+      "description": "Senior Mobile Engineer - iOS/Android/React Native, offline-first, app store, device capabilities"
+    },
+    "*": {
+      "mode": "subagent",
+      "description": "Dynamic agent - any agent name accepted (antigravity, codex, custom, etc.)"
+    }
+  },
+  "permission": {
+    "edit": "ask",
+    "bash": "ask",
+    "external_directory": {
+      "~/.*": "deny",
+      "/etc/**": "deny",
+      "*": "allow"
+    }
+  },
+  "references": {
+    "architecture": {
+      "path": "docs/architecture",
+      "description": "Architecture decision records, system designs"
+    },
+    "security": {
+      "path": "docs/security",
+      "description": "Threat models, security requirements, compliance docs"
+    },
+    "testing": {
+      "path": "docs/testing",
+      "description": "Test plans, strategies, quality metrics"
+    }
+  }
+}

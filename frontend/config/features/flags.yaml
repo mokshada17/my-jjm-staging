@@ -1,0 +1,5 @@
+features:
+  enableTelemetry: true
+  enableRealtimeUpdates: true
+  enableExport: false
+  enableBetaFeatures: false

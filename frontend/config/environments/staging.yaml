@@ -1,0 +1,20 @@
+app:
+  name: "jjm-config"
+  env: "staging"
+  logLevel: "info"
+
+mqtt:
+  host: "staging-mqtt.example.com"
+  port: 8883
+  clientId: "jjm-staging-client"
+  tls: true
+
+api:
+  baseUrl: "https://staging-api.example.com/api"
+  timeout: 10000
+
+database:
+  host: "staging-db.example.com"
+  port: 5432
+  name: "jjm_staging"
+  ssl: true

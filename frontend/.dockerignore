@@ -1,0 +1,6 @@
+node_modules
+dist
+.git
+*.tsbuildinfo
+pi-mock-server
+scratch_guide.txt
