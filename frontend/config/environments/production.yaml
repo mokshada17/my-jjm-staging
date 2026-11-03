@@ -1,0 +1,20 @@
+app:
+  name: "jjm-config"
+  env: "production"
+  logLevel: "info"
+
+mqtt:
+  host: "${MQTT_HOST}"
+  port: 8883
+  clientId: "jjm-prod-client"
+  tls: true
+
+api:
+  baseUrl: "${API_BASE_URL}"
+  timeout: 10000
+
+database:
+  host: "${DB_HOST}"
+  port: 5432
+  name: "jjm_prod"
+  ssl: true

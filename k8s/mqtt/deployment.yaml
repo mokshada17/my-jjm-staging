@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mosquitto
+  namespace: mqtt
+  labels:
+    app: mosquitto
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: mosquitto
+  template:
+    metadata:
+      labels:
+        app: mosquitto
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: ip-172-31-46-16
+      securityContext:
+        fsGroup: 1883
+      containers:
+        - name: mosquitto
+          image: eclipse-mosquitto:2.0
+          ports:
+            - name: mqtt
+              containerPort: 1883
+            - name: mqtts
+              containerPort: 8883
+          readinessProbe:
+            tcpSocket:
+              port: 1883
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 1883
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          volumeMounts:
+            - name: config
+              mountPath: /mosquitto/config
+            - name: passwords
+              mountPath: /mosquitto/passwords
+              readOnly: true
+            - name: certs
+              mountPath: /mosquitto/certs
+              readOnly: true
+            - name: data
+              mountPath: /mosquitto/data
+      volumes:
+        - name: config
+          configMap:
+            name: mosquitto-config
+        - name: passwords
+          secret:
+            secretName: mqtt-passwords
+            defaultMode: 0440
+        - name: certs
+          secret:
+            secretName: mqtt-tls-cert
+            defaultMode: 0440
+        - name: data
+          persistentVolumeClaim:
+            claimName: mosquitto-data

@@ -1,0 +1,173 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /*
+   * Large-screen scaling (TV walls, 2560px, 4K). Every size in the app is in rem,
+   * so this one rule decides how big everything is: 16px up to the 1920x1080 the
+   * design is drawn at, then growing with the screen - 21.3px at 2560x1440, 32px
+   * at 3840x2160 - so each screen shows the 1920 layout at its own size. It grows
+   * with the smaller of width/1920 and height/1080, so a 21:9 ultrawide is not
+   * scaled past its height. Never below 16px, so desktop and tablet layouts are
+   * untouched. On screens 1280px and wider, features/screen-fit overrides it
+   * to fit each page to the screen exactly. Write new sizes in rem (Tailwind's scale, or `-[Npx]`
+   * converted to rem); charts and SVGs that draw in px read the same factor
+   * from useUiScale().
+   */
+  html {
+    font-size: max(16px, min(100vw / 120, 100vh / 67.5));
+  }
+
+  :root {
+    --background: 206 38% 95%; /* #EDF4F9 Sky Tint */
+    --foreground: 222 47% 11%; /* #0F172A Slate 900 */
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 196 64% 33%; /* #1E6B8A Teal 700 */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 173 80% 32%; /* #0D9488 Teal 600 */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 20% 96%; /* #F1F5F9 Slate 100 */
+    --muted-foreground: 215 16% 47%; /* #64748B Slate 500 */
+    --accent: 192 61% 47%; /* #2FA4C1 Cyan Mid */
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84.3% 60.2%; /* #EF4444 */
+    --destructive-foreground: 210 40% 98%;
+    --border: 214 32% 91%; /* #E2E8F0 */
+    --input: 214 32% 91%;
+    --ring: 196 64% 33%;
+    --radius: 0.5rem;
+    --login-input-bg: #ffffff;
+    --login-input-text: #0f172a;
+    --a-text: #1E6B8A;
+    --checkbox-bg: #0F1B2D;
+    --checkbox-accent: #1E6B8A;
+    --avtar-bg: #ffffff;
+
+    /* SCADA Design tokens */
+    --scada-surface: #FFFFFF;
+    --scada-surface-nested: #F1F5F9;
+    --scada-border: #E2E8F0;
+    --scada-cyan: #0284C7;
+    --scada-teal: #1E6B8A;
+    /* Figma uses one status set across both themes. */
+    --scada-green: #10B981;
+    --scada-red: #EF4444;
+    --scada-amber: #F59E0B;
+  }
+
+  .dark {
+    --background: 222.5 46.2% 10.2%; /* #0E1526 Navy Deep */
+    --foreground: 210 40% 98%; /* #F8FAFC Slate 50 */
+    --card: 222.5 46.2% 10.2%; /* #0E1526 Navy Deep */
+    --card-foreground: 210 40% 98%;
+    --popover: 222 50% 22%; /* #1C2D54 Navy Mid */
+    --popover-foreground: 210 40% 98%;
+    --primary: 192.3 100% 57.1%; /* #24D2FF Cyan Bright */
+    --primary-foreground: 223 45% 10%;
+    --secondary: 192 61% 47%; /* #2FA4C1 Teal Mid */
+    --secondary-foreground: 210 40% 98%;
+    --muted: 221 44% 17%; /* #182642 */
+    --muted-foreground: 215 20% 65%; /* #94A3B8 Slate 400 */
+    --accent: 196 64% 33%; /* #1E6B8A Teal Dark */
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84.3% 60.2%; /* #EF4444 */
+    --destructive-foreground: 210 40% 98%;
+    --border: 219 43% 28%; /* #293E66 Slate Blue */
+    --input: 219 43% 28%;
+    --ring: 192 100% 57%;
+    --login-input-bg: #0F1B2D;
+    --login-input-text: #ffffff;
+    --a-text: #24D2FF;
+    --checkbox-bg: #0F1B2D;
+    --checkbox-accent: #24D2FF;
+    --avtar-bg: #0F1B2D;
+
+    /* SCADA Design tokens */
+    --scada-surface: #1C2D54;
+    --scada-surface-nested: #0E1526;
+    --scada-border: #293E66;
+    --scada-cyan: #24D2FF;
+    --scada-teal: #2FA4C1;
+    --scada-green: #10B981;
+    --scada-red: #EF4444;
+    --scada-amber: #F59E0B;
+  }
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--login-input-text);
+  -webkit-box-shadow: 0 0 0 1000px var(--login-input-bg) inset;
+  box-shadow: 0 0 0 1000px var(--login-input-bg) inset;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-jjm-light-bg dark:bg-[#0E1526] text-slate-900 dark:text-white;
+    @apply font-sans antialiased;
+    overflow-x: hidden;
+  }
+}
+
+/* JJM Reusable Design Utilities */
+@layer components {
+  .jjm-card {
+    @apply rounded-xl bg-white dark:bg-[#0E1526] border border-slate-200 dark:border-[#293E66] text-slate-900 dark:text-white shadow-sm;
+  }
+  .jjm-card-nested {
+    @apply rounded-lg bg-jjm-light-surface dark:bg-[#1C2D54] border border-slate-200 dark:border-[#293E66];
+  }
+  .jjm-card-inner-box {
+    @apply rounded bg-[#EDF2F7] dark:bg-[#0E1526] border border-slate-200 dark:border-[#293E66];
+  }
+  .jjm-heading {
+    @apply text-[#004B87] dark:text-[#24D2FF] font-bold uppercase tracking-wider;
+  }
+  .login-checkbox {
+    accent-color: var(--checkbox-accent);
+  }
+}
+
+/* SCADA animated pipe flow dashes */
+@keyframes scadaFlowAnimation {
+  from {
+    stroke-dashoffset: 40;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.scada-pipe-flow {
+  stroke-dasharray: 8 8;
+  animation: scadaFlowAnimation 1.2s linear infinite;
+}
+
+/* Chevron Ribbon Clip-path for 9-tier Navigation — every tab, including the
+   first and last, uses the same notched-left / pointed-right shape. */
+.chevron-tab {
+  /* Figma ribbon tab: 140x35, a 16.6px tail notch and a 17.6px point, tip at 52.3%
+     (in rem so the notch scales with the large-screen root size). */
+  clip-path: polygon(0% 0%, calc(100% - 1.1rem) 0%, 100% 52.3%, calc(100% - 1.1rem) 100%, 0% 100%, 1.0375rem 52.3%);
+}
+
+/* The enlarged tab on 2560px+ screens (48px tall, HierarchyBreadcrumbs): the point
+   and notch grow by the same ~37%, so the chevron keeps its angle. */
+@media (min-width: 2560px) {
+  .chevron-tab {
+    clip-path: polygon(0% 0%, calc(100% - 1.5rem) 0%, 100% 52.3%, calc(100% - 1.5rem) 100%, 0% 100%, 1.4225rem 52.3%);
+  }
+}
+
+.avtar-bg {
+  background-color: var(--avtar-bg);
+}

@@ -1,0 +1,138 @@
+# Universal Agent Registry
+# Single source of truth for all CLIs (opencode, antigravity, codex, etc.)
+# Sync with: .agents/sync-to-opencode.ps1, .agents/sync-to-antigravity.ps1, etc.
+
+version: "1.0"
+
+defaults:
+  mode: "subagent"
+  permissions:
+    edit: "ask"
+    bash: "ask"
+    external_directory:
+      "~/.*": "deny"
+      "/etc/**": "deny"
+      "*": "allow"
+
+agents:
+  tech-lead:
+    mode: "primary"
+    description: "Technical Lead - orchestrates all senior roles, makes binding trade-off decisions"
+    capabilities:
+      - orchestration
+      - decision-making
+      - delegation
+      - architecture-review
+      - release-gating
+
+  senior-architect:
+    description: "Senior Software Architect - system design, technology decisions, ADRs"
+    capabilities:
+      - system-design
+      - technology-selection
+      - adr-authoring
+      - scalability-planning
+
+  senior-developer:
+    description: "Senior Developer - implementation, clean code, TDD, code reviews"
+    capabilities:
+      - implementation
+      - tdd
+      - code-review
+      - refactoring
+      - clean-code
+
+  senior-tester:
+    description: "Senior Test Engineer - test strategy, infrastructure, quality gates"
+    capabilities:
+      - test-strategy
+      - test-infrastructure
+      - quality-gates
+      - automation
+
+  senior-devops:
+    description: "Senior DevOps Engineer - CI/CD, IaC, GitOps, observability, platform"
+    capabilities:
+      - cicd
+      - infrastructure-as-code
+      - gitops
+      - observability
+      - platform-engineering
+
+  senior-qa:
+    description: "Senior QA Engineer - acceptance criteria, release readiness, user advocacy"
+    capabilities:
+      - acceptance-criteria
+      - release-readiness
+      - user-advocacy
+      - exploratory-testing
+
+  senior-cybersecurity:
+    description: "Senior Cyber Security Engineer - threat modeling, AppSec, compliance, IR"
+    capabilities:
+      - threat-modeling
+      - appsec
+      - compliance
+      - incident-response
+      - vulnerability-management
+
+  senior-product-owner:
+    description: "Senior Product Owner - product strategy, backlog, stakeholders, requirements"
+    capabilities:
+      - product-strategy
+      - backlog-management
+      - stakeholder-management
+      - requirements-engineering
+
+  senior-ux-designer:
+    description: "Senior UX Designer - user research, interaction design, design systems, accessibility"
+    capabilities:
+      - user-research
+      - interaction-design
+      - design-systems
+      - accessibility
+      - usability-testing
+
+  senior-data-engineer:
+    description: "Senior Data Engineer - data architecture, pipelines, modeling, governance, analytics"
+    capabilities:
+      - data-architecture
+      - pipelines
+      - data-modeling
+      - governance
+      - analytics
+
+  senior-tech-writer:
+    description: "Senior Technical Writer - documentation, API docs, developer experience, content architecture"
+    capabilities:
+      - documentation
+      - api-docs
+      - developer-experience
+      - content-architecture
+
+  senior-performance-engineer:
+    description: "Senior Performance Engineer - load testing, profiling, optimization, capacity planning, SLOs"
+    capabilities:
+      - load-testing
+      - profiling
+      - optimization
+      - capacity-planning
+      - slo-definition
+
+  senior-mobile-engineer:
+    description: "Senior Mobile Engineer - iOS/Android/React Native, offline-first, app store, device capabilities"
+    capabilities:
+      - ios
+      - android
+      - react-native
+      - offline-first
+      - app-store
+      - device-capabilities
+
+# Dynamic agent template - any new agent gets these defaults
+dynamic_agent_template:
+  mode: "subagent"
+  description: "Custom agent - {{description}}"
+  capabilities: []
+  defaults:
+    permissions: "{{defaults.permissions}}"
