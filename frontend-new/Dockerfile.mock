@@ -1,0 +1,17 @@
+FROM node:22-alpine
+
+ENV NODE_ENV=production \
+    PORT=3001 \
+    HOST=0.0.0.0
+
+WORKDIR /app
+
+# server.js uses only Node built-ins: no npm install needed.
+# package.json is copied so "type": "module" (if set) is honored.
+COPY --chown=node:node package.json ./
+COPY --chown=node:node pi-mock-server/ ./pi-mock-server/
+
+USER node
+
+EXPOSE 3001
+CMD ["node", "pi-mock-server/server.js"]

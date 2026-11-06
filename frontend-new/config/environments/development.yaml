@@ -1,0 +1,18 @@
+app:
+  name: "jjm-config"
+  env: "development"
+  logLevel: "debug"
+
+mqtt:
+  host: "localhost"
+  port: 1883
+  clientId: "jjm-dev-client"
+
+api:
+  baseUrl: "http://localhost:3000/api"
+  timeout: 5000
+
+database:
+  host: "localhost"
+  port: 5432
+  name: "jjm_dev"
