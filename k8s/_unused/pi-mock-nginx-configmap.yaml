@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pi-mock-nginx-conf
+  namespace: jjm
+  labels:
+    app: pi-mock-server
+    tier: mock
+    environment: staging
+data:
+  nginx.conf: |
+    pid /tmp/nginx.pid;
+    worker_processes auto;
+    error_log /dev/stderr warn;
+
+    events {
+        worker_connections 1024;
+    }
+
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/json;
+        access_log /dev/stdout;
+
+        sendfile on;
+        keepalive_timeout 65;
+
+        client_body_temp_path /tmp/client_temp;
+        proxy_temp_path       /tmp/proxy_temp;
+        fastcgi_temp_path     /tmp/fastcgi_temp;
+        uwsgi_temp_path       /tmp/uwsgi_temp;
+        scgi_temp_path        /tmp/scgi_temp;
+
+        server {
+            listen 3001;
+            server_name _;
+
+            # Global CORS headers
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT, DELETE' always;
+            add_header 'Access-Control-Allow-Headers' 'Authorization,Content-Type,Accept,Origin,User-Agent' always;
+
+            location = /healthz {
+                access_log off;
+                default_type text/plain;
+                return 200 "ok\n";
+            }
+
+            if ($request_method = 'OPTIONS') {
+                return 204;
+            }
+
+            # PI Web API Root Mock
+            location = /piwebapi/ {
+                return 200 '{"Links":{"Self":"http://pi-mock-service:3001/piwebapi/","AssetServers":"http://pi-mock-service:3001/piwebapi/assetservers","DataServers":"http://pi-mock-service:3001/piwebapi/dataservers"},"Status":"Running","Mock":true}';
+            }
+
+            # PI Web API Sub-resources Mock (elements, attributes, streams)
+            location /piwebapi/ {
+                return 200 '{"Items":[{"WebId":"MOCK-JJM-01","Name":"Water-Flow-Sensor","Value":42.8,"Timestamp":"2026-11-05T07:00:00Z","Good":true}],"Total":1,"Message":"Mock PI Web API Response OK"}';
+            }
+
+            # General Backend API Mock (catches frontend /api/ calls)
+            location /api/ {
+                return 200 '{"status":"success","data":[],"message":"JJM Mock Backend API active"}';
+            }
+
+            location / {
+                return 200 '{"service":"pi-mock-server","status":"operational"}';
+            }
+        }
+    }

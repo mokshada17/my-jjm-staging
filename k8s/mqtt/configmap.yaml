@@ -10,20 +10,14 @@ data:
     persistence true
     persistence_location /mosquitto/data/
     log_dest stdout
-    log_type error
-    log_type warning
-    log_type notice
-    log_type information
+    log_type all
 
     # Plain MQTT: NLB 1883 -> NodePort 31883
     listener 1883 0.0.0.0
     allow_anonymous false
     password_file /mosquitto/passwords/passwd_1883
 
-    # TLS MQTT: NLB 8883 -> NodePort 31884
+    # Plain MQTT without TLS: NLB 8883 -> NodePort 31884
     listener 8883 0.0.0.0
     allow_anonymous false
     password_file /mosquitto/passwords/passwd_8883
-    certfile /mosquitto/certs/tls.crt
-    keyfile /mosquitto/certs/tls.key
-    require_certificate false

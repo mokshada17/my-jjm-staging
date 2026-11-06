@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jjm-frontend
+  namespace: jjm
+  labels:
+    app: jjm-frontend
+    tier: frontend
+    environment: staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jjm-frontend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: jjm-frontend
+        tier: frontend
+        environment: staging
+    spec:
+      imagePullSecrets:
+        - name: ecr-creds
+      terminationGracePeriodSeconds: 30
+
+      # Copies the built site into a writable volume and rewrites the
+      # baked-in dev API URL to the same-origin /api route.
+      # Harmless once the image is rebuilt with VITE_API_URL=/api
+      # (nothing left to replace).
+      initContainers:
+        - name: patch-bundle
+          image: 463200133991.dkr.ecr.ap-southeast-1.amazonaws.com/jjm-frontend-new:v2
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -e
+              cp -r /usr/share/nginx/html/. /work/
+              echo "occurrences before:"; cat /work/assets/*.js | grep -o 'http://localhost:3001' | wc -l
+              sed -i 's#http://localhost:3001#/api#g' /work/assets/*.js
+              echo "occurrences after:";  cat /work/assets/*.js | grep -o 'http://localhost:3001' | wc -l
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 101
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: html
+              mountPath: /work
+
+      containers:
+        - name: frontend
+          image: 463200133991.dkr.ecr.ap-southeast-1.amazonaws.com/jjm-frontend-new:v2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            failureThreshold: 3
+            timeoutSeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 101
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: nginx-cache
+              mountPath: /var/cache/nginx
+            - name: nginx-run
+              mountPath: /var/run
+            - name: nginx-conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+              readOnly: true
+            - name: html                      # patched site from the initContainer
+              mountPath: /usr/share/nginx/html
+              readOnly: true
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: nginx-cache
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}
+        - name: nginx-conf
+          configMap:
+            name: jjm-frontend-nginx-conf
+        - name: html
+          emptyDir:
+            sizeLimit: 200Mi

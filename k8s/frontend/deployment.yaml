@@ -27,21 +27,42 @@ spec:
       imagePullSecrets:
         - name: ecr-creds
       terminationGracePeriodSeconds: 30
+
+      # Copies the built site into a writable volume and rewrites the
+      # baked-in dev API URL to the same-origin /api route.
+      # Harmless once the image is rebuilt with VITE_API_URL=/api
+      # (nothing left to replace).
+      initContainers:
+        - name: patch-bundle
+          image: 463200133991.dkr.ecr.ap-southeast-1.amazonaws.com/jjm-frontend-latest:latest
+          imagePullPolicy: Always
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -e
+              cp -r /usr/share/nginx/html/. /work/
+              echo "occurrences before:"; cat /work/assets/*.js | grep -o 'http://localhost:3001' | wc -l
+              sed -i 's#http://localhost:3001#/api#g' /work/assets/*.js
+              echo "occurrences after:";  cat /work/assets/*.js | grep -o 'http://localhost:3001' | wc -l
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 101
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: html
+              mountPath: /work
+
       containers:
         - name: frontend
-          image: 463200133991.dkr.ecr.ap-southeast-1.amazonaws.com/jjm-frontend-new:v2
-          imagePullPolicy: IfNotPresent
+          image: 463200133991.dkr.ecr.ap-southeast-1.amazonaws.com/jjm-frontend-latest:latest
+          imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 8080
               protocol: TCP
-          # resources:
-          #   requests:
-          #     cpu: 100m
-          #     memory: 128Mi
-          #   limits:
-          #     cpu: 500m
-          #     memory: 512Mi
           readinessProbe:
             httpGet:
               path: /healthz
@@ -71,6 +92,13 @@ spec:
               mountPath: /var/cache/nginx
             - name: nginx-run
               mountPath: /var/run
+            - name: nginx-conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+              readOnly: true
+            - name: html                      # patched site from the initContainer
+              mountPath: /usr/share/nginx/html
+              readOnly: true
       volumes:
         - name: tmp
           emptyDir: {}
@@ -78,3 +106,9 @@ spec:
           emptyDir: {}
         - name: nginx-run
           emptyDir: {}
+        - name: nginx-conf
+          configMap:
+            name: jjm-frontend-nginx-conf
+        - name: html
+          emptyDir:
+            sizeLimit: 200Mi

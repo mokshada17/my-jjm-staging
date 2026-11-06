@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pi-mock-server
+  namespace: jjm
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: pi-mock-server
+
+  template:
+    metadata:
+      labels:
+        app: pi-mock-server
+
+    spec:
+      imagePullSecrets:
+        - name: ecr-creds
+
+      containers:
+        - name: pi-mock-server
+
+          image: 463200133991.dkr.ecr.ap-southeast-1.amazonaws.com/jjm-pi-mock-latest:latest
+
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 3001
